@@ -1,7 +1,4 @@
-"""TDD Step 4a — GET /employees API tests.
-
-RED phase: endpoint does not exist yet, so all tests will fail.
-"""
+"""TDD Step 4a — GET /employees API tests (updated for paginated response)."""
 
 EMPLOYEE_1 = {
     "full_name": "Alice Smith",
@@ -29,22 +26,23 @@ class TestGetEmployeesList:
         assert response.status_code == 200
 
     def test_returns_empty_list_when_no_employees(self, client):
-        response = client.get("/employees")
-        assert response.json() == []
+        data = client.get("/employees").json()
+        assert data["items"] == []
+        assert data["total"] == 0
 
     def test_returns_all_employees(self, client):
         client.post("/employees", json=EMPLOYEE_1)
         client.post("/employees", json=EMPLOYEE_2)
 
-        response = client.get("/employees")
-        data = response.json()
-        assert len(data) == 2
+        data = client.get("/employees").json()
+        assert data["total"] == 2
+        assert len(data["items"]) == 2
 
     def test_each_employee_has_required_fields(self, client):
         client.post("/employees", json=EMPLOYEE_1)
 
-        response = client.get("/employees")
-        emp = response.json()[0]
+        data = client.get("/employees").json()
+        emp = data["items"][0]
         for field in ("id", "full_name", "job_title", "country", "salary",
                        "department", "email"):
             assert field in emp

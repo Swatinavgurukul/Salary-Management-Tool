@@ -10,6 +10,13 @@ export interface Employee {
   updated_at: string | null;
 }
 
+export interface PaginatedResponse {
+  items: Employee[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
 export interface EmployeeCreate {
   full_name: string;
   job_title: string;
@@ -43,4 +50,18 @@ export interface JobInsight {
   max_salary: number;
   avg_salary: number;
   employee_count: number;
+}
+
+export interface DepartmentInsight {
+  department: string;
+  employee_count: number;
+  min_salary: number;
+  max_salary: number;
+  avg_salary: number;
+}
+
+export interface HeadcountEntry {
+  country: string;
+  employee_count: number;
+  avg_salary: number;
 }

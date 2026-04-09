@@ -247,6 +247,40 @@ nav a.active {
   font-variant-numeric: tabular-nums;
 }
 
+/* Search bar */
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-bar .search-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Compact table variant */
+.data-table.compact th,
+.data-table.compact td {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
 /* Utility */
 .error {
   color: #d32f2f;

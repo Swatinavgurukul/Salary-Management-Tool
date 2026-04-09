@@ -1,6 +1,7 @@
-from typing import List
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -29,11 +30,38 @@ def create_employee(payload: EmployeeCreate, db: Session = Depends(get_db)):
     return employee
 
 
-# ── READ ───────────────────────────────────────────────────────
+# ── READ (paginated) ──────────────────────────────────────────
 
-@router.get("", response_model=List[EmployeeResponse])
-def list_employees(db: Session = Depends(get_db)):
-    return db.query(Employee).all()
+@router.get("")
+def list_employees(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    search: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Employee)
+
+    if search:
+        pattern = f"%{search}%"
+        query = query.filter(
+            or_(
+                Employee.full_name.ilike(pattern),
+                Employee.job_title.ilike(pattern),
+                Employee.country.ilike(pattern),
+                Employee.department.ilike(pattern),
+                Employee.email.ilike(pattern),
+            )
+        )
+
+    total = query.count()
+    items = query.order_by(Employee.id).offset((page - 1) * page_size).limit(page_size).all()
+
+    return {
+        "items": [EmployeeResponse.model_validate(emp) for emp in items],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 @router.get("/{employee_id}", response_model=EmployeeResponse)

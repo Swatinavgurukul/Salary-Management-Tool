@@ -3,13 +3,16 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import App from "./App";
 
 vi.mock("./api/client", () => ({
-  fetchEmployees: vi.fn().mockResolvedValue([]),
+  fetchEmployees: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, page_size: 20 }),
   fetchEmployee: vi.fn(),
   createEmployee: vi.fn(),
   updateEmployee: vi.fn(),
   deleteEmployee: vi.fn(),
   fetchCountryInsight: vi.fn(),
   fetchJobInsight: vi.fn(),
+  fetchDepartmentInsights: vi.fn().mockResolvedValue([]),
+  fetchHeadcount: vi.fn().mockResolvedValue([]),
+  fetchTopEarners: vi.fn().mockResolvedValue([]),
 }));
 
 describe("App", () => {

@@ -1,11 +1,12 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Employee
+from app.schemas import EmployeeResponse
 
 router = APIRouter(prefix="/insights", tags=["insights"])
 
@@ -30,6 +31,8 @@ def _aggregate(query):
     }
 
 
+# ── Country insights ──────────────────────────────────────────
+
 @router.get("/country/{country}")
 def country_insights(country: str, db: Session = Depends(get_db)):
     query = db.query(Employee).filter(
@@ -41,6 +44,8 @@ def country_insights(country: str, db: Session = Depends(get_db)):
     result["country"] = country
     return result
 
+
+# ── Job title insights ────────────────────────────────────────
 
 @router.get("/job")
 def job_insights(
@@ -61,3 +66,70 @@ def job_insights(
     if country:
         result["country"] = country
     return result
+
+
+# ── Department breakdown ──────────────────────────────────────
+
+@router.get("/department")
+def department_insights(db: Session = Depends(get_db)):
+    rows = (
+        db.query(
+            Employee.department,
+            func.count(Employee.id).label("employee_count"),
+            func.min(Employee.salary).label("min_salary"),
+            func.max(Employee.salary).label("max_salary"),
+            func.avg(Employee.salary).label("avg_salary"),
+        )
+        .group_by(Employee.department)
+        .order_by(desc("employee_count"))
+        .all()
+    )
+    return [
+        {
+            "department": r.department,
+            "employee_count": r.employee_count,
+            "min_salary": r.min_salary,
+            "max_salary": r.max_salary,
+            "avg_salary": round(r.avg_salary, 2),
+        }
+        for r in rows
+    ]
+
+
+# ── Headcount by country ─────────────────────────────────────
+
+@router.get("/headcount")
+def headcount_by_country(db: Session = Depends(get_db)):
+    rows = (
+        db.query(
+            Employee.country,
+            func.count(Employee.id).label("employee_count"),
+            func.avg(Employee.salary).label("avg_salary"),
+        )
+        .group_by(Employee.country)
+        .order_by(desc("employee_count"))
+        .all()
+    )
+    return [
+        {
+            "country": r.country,
+            "employee_count": r.employee_count,
+            "avg_salary": round(r.avg_salary, 2),
+        }
+        for r in rows
+    ]
+
+
+# ── Top earners ──────────────────────────────────────────────
+
+@router.get("/top-earners", response_model=List[EmployeeResponse])
+def top_earners(
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    return (
+        db.query(Employee)
+        .order_by(desc(Employee.salary))
+        .limit(limit)
+        .all()
+    )

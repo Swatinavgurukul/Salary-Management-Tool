@@ -3,34 +3,26 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import EmployeeListPage from "./EmployeeListPage";
 import * as client from "../api/client";
-import type { Employee } from "../types/employee";
+import type { Employee, PaginatedResponse } from "../types/employee";
 
 vi.mock("../api/client");
 
 const mockEmployees: Employee[] = [
   {
-    id: 1,
-    full_name: "Alice Smith",
-    job_title: "Engineer",
-    country: "India",
-    salary: 80000,
-    department: "Engineering",
-    email: "alice@example.com",
-    created_at: "2024-01-01T00:00:00",
-    updated_at: null,
+    id: 1, full_name: "Alice Smith", job_title: "Engineer", country: "India",
+    salary: 80000, department: "Engineering", email: "alice@example.com",
+    created_at: "2024-01-01T00:00:00", updated_at: null,
   },
   {
-    id: 2,
-    full_name: "Bob Jones",
-    job_title: "Designer",
-    country: "US",
-    salary: 90000,
-    department: "Design",
-    email: "bob@example.com",
-    created_at: "2024-01-01T00:00:00",
-    updated_at: null,
+    id: 2, full_name: "Bob Jones", job_title: "Designer", country: "US",
+    salary: 90000, department: "Design", email: "bob@example.com",
+    created_at: "2024-01-01T00:00:00", updated_at: null,
   },
 ];
+
+function mockPaginated(items: Employee[], total?: number): PaginatedResponse {
+  return { items, total: total ?? items.length, page: 1, page_size: 20 };
+}
 
 function renderPage() {
   return render(
@@ -52,7 +44,7 @@ describe("EmployeeListPage", () => {
   });
 
   it("renders employee table after loading", async () => {
-    vi.mocked(client.fetchEmployees).mockResolvedValue(mockEmployees);
+    vi.mocked(client.fetchEmployees).mockResolvedValue(mockPaginated(mockEmployees));
     renderPage();
 
     await waitFor(() => {
@@ -62,7 +54,7 @@ describe("EmployeeListPage", () => {
   });
 
   it("shows empty state when no employees", async () => {
-    vi.mocked(client.fetchEmployees).mockResolvedValue([]);
+    vi.mocked(client.fetchEmployees).mockResolvedValue(mockPaginated([]));
     renderPage();
 
     await waitFor(() => {
@@ -71,7 +63,7 @@ describe("EmployeeListPage", () => {
   });
 
   it("displays employee count in header", async () => {
-    vi.mocked(client.fetchEmployees).mockResolvedValue(mockEmployees);
+    vi.mocked(client.fetchEmployees).mockResolvedValue(mockPaginated(mockEmployees));
     renderPage();
 
     await waitFor(() => {
@@ -80,7 +72,7 @@ describe("EmployeeListPage", () => {
   });
 
   it("has an Add Employee button", async () => {
-    vi.mocked(client.fetchEmployees).mockResolvedValue([]);
+    vi.mocked(client.fetchEmployees).mockResolvedValue(mockPaginated([]));
     renderPage();
 
     await waitFor(() => {
