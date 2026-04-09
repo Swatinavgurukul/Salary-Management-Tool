@@ -20,10 +20,13 @@ Built for the **HR Manager** persona.
 │   │   ├── models.py            # SQLAlchemy Employee model
 │   │   ├── schemas.py           # Pydantic request/response schemas
 │   │   ├── database.py          # DB engine & session
-│   │   └── routers/
-│   │       ├── employees.py     # CRUD endpoints (paginated)
-│   │       └── insights.py      # Salary analytics endpoints
-│   ├── tests/                   # 98 pytest tests
+│   │   ├── routers/
+│   │   │   ├── employees.py     # CRUD endpoints (paginated)
+│   │   │   └── insights.py      # Salary analytics endpoints
+│   │   └── services/
+│   │       ├── employee_service.py  # CRUD business logic
+│   │       └── insight_service.py   # Aggregation query logic
+│   ├── tests/                   # 122 pytest tests
 │   ├── data/
 │   │   ├── first_names.txt      # 100 first names for seeding
 │   │   └── last_names.txt       # 100 last names for seeding
@@ -36,6 +39,8 @@ Built for the **HR Manager** persona.
 │   │   └── types/employee.ts    # TypeScript interfaces
 │   └── package.json
 ├── DESIGN.md                    # Architecture, trade-offs, TDD approach
+├── AI_USAGE.md                  # How AI tools were used in development
+├── start.sh                     # One-command startup script
 └── README.md
 ```
 
@@ -106,16 +111,16 @@ cd frontend && npm run dev
 
 ## Testing
 
-111+ tests covering model validation, all API endpoints, pagination, seed script, and frontend components.
+151 tests covering model validation, all API endpoints, pagination, edge cases, seed script, and frontend components.
 
 ```bash
-# Backend (98 tests, ~1s)
+# Backend (122 tests, ~1.3s)
 cd backend && python -m pytest tests/ -v
 
-# Frontend (16 tests, ~1.5s)
+# Frontend (29 tests, ~2.4s)
 cd frontend && npm test
 ```
 
 ## Development Approach
 
-This project was built using **Test-Driven Development (TDD)** with incremental commits. See [DESIGN.md](DESIGN.md) for architecture decisions, trade-offs, and performance considerations.
+This project was built using **Test-Driven Development (TDD)** with incremental commits. See [DESIGN.md](DESIGN.md) for architecture decisions, trade-offs, and performance considerations, and [AI_USAGE.md](AI_USAGE.md) for how AI tools were used.

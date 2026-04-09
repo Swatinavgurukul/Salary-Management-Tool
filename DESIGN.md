@@ -12,7 +12,7 @@
 
 **Frontend:** React 19 + TypeScript, bundled with Vite. Communicates with the backend through a `/api` reverse proxy in development.
 
-**Backend:** FastAPI with SQLAlchemy ORM. Single `employees` table in SQLite. Organized into routers (`employees`, `insights`) for separation of concerns.
+**Backend:** FastAPI with SQLAlchemy ORM. Single `employees` table in SQLite. Three-layer architecture: routers (HTTP controllers) → services (business logic) → models (DB). Organized into routers (`employees`, `insights`) and services (`employee_service`, `insight_service`) for clean separation of concerns.
 
 **Database:** SQLite — chosen for zero-infrastructure local development. The `salary > 0` CHECK constraint enforces data integrity at the DB level, in addition to Pydantic schema validation.
 
@@ -57,10 +57,11 @@ Every feature followed the Red-Green-Refactor cycle:
 | CRUD API | pytest | 35 | POST/GET/PUT/DELETE, validation errors, 404/409/422 |
 | Insights API | pytest | 26 | Country/job/department/headcount/top-earners aggregates |
 | Pagination | pytest | 8 | Page/size params, search, empty pages |
+| Edge Cases | pytest | 27 | Boundary values, special chars, field limits |
 | Seed Script | pytest | 13 | Name loading, generation, uniqueness, field correctness |
-| Frontend | Vitest | 16 | Page rendering, loading/error states, nav, sections |
+| Frontend | Vitest | 29 | Page rendering, forms, loading/error states, nav, sections |
 
-**Total: 111+ tests**, all deterministic and fast (~2s total runtime).
+**Total: 151 tests**, all deterministic and fast (~3.7s total runtime).
 
 ### Test Design Principles
 - **In-memory SQLite** for test DB — no file I/O, instant setup/teardown.
